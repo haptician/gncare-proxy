@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 3000;
 // Middleware to parse JSON
 app.use(express.json());
 
-// Serve static files (your clock.html, index.html, etc.)
+// Serve static files (frontend pages)
 app.use(express.static(path.join(__dirname, "public")));
 
 // Path to records file
@@ -48,7 +48,7 @@ app.post("/addRecord", (req, res) => {
   // Save back to file
   saveRecords(records);
 
-  // Respond with success JSON
+  // ✅ Always respond with success JSON
   res.json({ success: true });
 });
 
