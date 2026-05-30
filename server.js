@@ -47,3 +47,7 @@ app.post("/addRecord", async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Proxy running on port ${PORT}`));
+
+app.get("/", (req, res) => {
+  res.send("Proxy is running!");
+});
