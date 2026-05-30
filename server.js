@@ -3,8 +3,11 @@ const cors = require("cors");
 
 const app = express();
 
-// Enable CORS for all routes
-app.use(cors());
+// Allow requests from your GitHub Pages domain
+app.use(cors({
+  origin: "https://haptician.github.io"
+}));
+
 app.use(express.json());
 
 const fetch = require("node-fetch");
