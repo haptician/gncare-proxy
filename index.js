@@ -5,7 +5,6 @@ const path = require("path");
 const app = express();
 app.use(express.json());
 
-// Add record route
 app.post("/addRecord", (req, res) => {
   const filePath = path.join(__dirname, "records.json");
   const newRecord = req.body;
@@ -31,7 +30,6 @@ app.post("/addRecord", (req, res) => {
   });
 });
 
-// Records route
 app.get("/records", (req, res) => {
   const filePath = path.join(__dirname, "records.json");
   fs.readFile(filePath, "utf8", (err, data) => {
@@ -49,6 +47,5 @@ app.get("/records", (req, res) => {
   });
 });
 
-// Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
