@@ -3,11 +3,9 @@ const fs = require("fs");
 const path = require("path");
 
 const app = express();
-
-// Middleware
 app.use(express.json());
 
-// Clock-in/out route (already working)
+// Add record route
 app.post("/addRecord", (req, res) => {
   const filePath = path.join(__dirname, "records.json");
   const newRecord = req.body;
@@ -17,8 +15,8 @@ app.post("/addRecord", (req, res) => {
     if (!err && data) {
       try {
         records = JSON.parse(data);
-      } catch (parseErr) {
-        console.error("Invalid JSON, starting fresh:", parseErr);
+      } catch {
+        console.error("Invalid JSON, starting fresh");
       }
     }
     records.push(newRecord);
