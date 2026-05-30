@@ -1,3 +1,18 @@
+const fs = require("fs");
+const path = require("path");
+
+app.get("/records", (req, res) => {
+  const filePath = path.join(__dirname, "records.json");
+  fs.readFile(filePath, "utf8", (err, data) => {
+    if (err) {
+      console.error("Error reading records.json:", err);
+      return res.status(500).json({ error: "Failed to read records file" });
+    }
+    res.setHeader("Content-Type", "application/json");
+    res.send(data);
+  });
+});
+
 const express = require("express");
 const cors = require("cors");
 
