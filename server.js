@@ -1,8 +1,15 @@
 const express = require("express");
+const cors = require("cors");
+
+const app = express();
+
+// Enable CORS for all routes
+app.use(cors());
+app.use(express.json());
+
 const fetch = require("node-fetch");
 const bodyParser = require("body-parser");
 
-const app = express();
 app.use(bodyParser.json());
 
 const GITHUB_USER = "haptician";
