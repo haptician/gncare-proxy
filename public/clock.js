@@ -6,11 +6,11 @@ function formatLocalTime(date) {
 // Send record to proxy
 async function addRecord(record) {
   try {
-    const response = await fetch("https://gncare-proxy.onrender.com/addRecord", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(record)
-    });
+    const response = await fetch("/addRecord", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(record)
+});
      
     if (!response.ok) throw new Error(`Server error: ${response.status}`);
 
