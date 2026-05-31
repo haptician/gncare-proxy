@@ -144,7 +144,7 @@
 
       function flushDay() {
         if (dayRecords.length > 0) {
-          // Sort within the day: clock-in first, then clock-out
+          // Sort within the day: In first, then Out
           dayRecords.sort((a, b) => {
             if (a.action === "clock-in" && b.action === "clock-out") return -1;
             if (a.action === "clock-out" && b.action === "clock-in") return 1;
@@ -169,7 +169,9 @@
         div.className = `record ${r.action}`;
         const time = new Date(r.time).toLocaleTimeString();
         const mapsUrl = `https://www.google.com/maps?q=${r.location.latitude},${r.location.longitude}`;
-        div.innerHTML = `${r.action.replace("clock-", "")} at ${time}<br><a class="map-link" href="${mapsUrl}" target="_blank">View on map</a>`;
+        // Show just "In" or "Out"
+        const label = r.action === "clock-in" ? "In" : "Out";
+        div.innerHTML = `${label} at ${time}<br><a class="map-link" href="${mapsUrl}" target="_blank">View on map</a>`;
         dayRecords.push(div);
       });
 
