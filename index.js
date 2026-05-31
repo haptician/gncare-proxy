@@ -20,7 +20,7 @@ const pool = new Pool({
 // Route: get all records
 app.get("/records", async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM records ORDER BY time DESC");
+    const result = await pool.query("SELECT * FROM records ORDER BY record_time DESC");
     res.json(result.rows);
   } catch (err) {
     console.error("Error fetching records:", err);
