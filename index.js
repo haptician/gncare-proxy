@@ -38,8 +38,8 @@ app.post("/addRecord", async (req, res) => {
     );
     res.json({ success: true });
   } catch (err) {
-    console.error("Error adding record:", err);
-    res.status(500).json({ error: "Error adding record" });
+    console.error("Error adding record:", err.message); // <-- log actual error
+    res.status(500).json({ error: err.message });       // <-- return actual error
   }
 });
 
