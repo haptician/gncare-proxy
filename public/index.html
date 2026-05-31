@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>GN Care Report</title>
+  <title>Office Report</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -60,8 +60,9 @@
   </style>
 </head>
 <body>
-  <h1>GN Care Report</h1>
+  <h1>Report</h1>
   <div id="controls">
+    <button onclick="setFilter(null)">Show All</button>
     <button onclick="setFilter('week')">This Week</button>
     <button onclick="setFilter('month')">This Month</button>
     <button onclick="setFilter('year')">This Year</button>
@@ -96,8 +97,13 @@
       let filtered = allRecords;
 
       if (currentFilter === "week") {
+        // Start of week (Monday)
         const startOfWeek = new Date(now);
-        startOfWeek.setDate(now.getDate() - now.getDay()); // Sunday
+        const day = startOfWeek.getDay(); // 0=Sunday, 1=Monday...
+        const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
+        startOfWeek.setDate(diff);
+        startOfWeek.setHours(0,0,0,0);
+
         filtered = allRecords.filter(r => new Date(r.time) >= startOfWeek);
       } else if (currentFilter === "month") {
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
