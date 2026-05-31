@@ -23,70 +23,22 @@
       justify-content: center;
       padding: 1rem;
     }
-    h1 {
-      font-size: 2.2rem;
-      font-weight: 600;
-      margin-bottom: 2rem;
-      color: #111;
-    }
+    h1 { font-size: 2.2rem; font-weight: 600; margin-bottom: 2rem; color: #111; }
     .button {
-      display: block;
-      width: 90%;
-      max-width: 350px;
-      margin: 1rem 0;
-      padding: 1.5rem;
-      font-size: 1.4rem;
-      font-weight: 600;
-      border: none;
-      border-radius: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-      cursor: pointer;
-      transition: background 0.2s;
+      display: block; width: 90%; max-width: 350px; margin: 1rem 0; padding: 1.5rem;
+      font-size: 1.4rem; font-weight: 600; border: none; border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15); cursor: pointer; transition: background 0.2s;
     }
-    .button:disabled {
-      background: #d1d1d6;
-      color: #888;
-      cursor: not-allowed;
-      box-shadow: none;
-    }
-    #clockInBtn {
-      background: #34c759;
-      color: white;
-    }
-    #clockInBtn:hover:not(:disabled) {
-      background: #28a745;
-    }
-    #clockOutBtn {
-      background: #ff3b30;
-      color: white;
-    }
-    #clockOutBtn:hover:not(:disabled) {
-      background: #d32f2f;
-    }
-    #status {
-      margin-top: 2rem;
-      font-size: 1.2rem;
-      font-weight: 500;
-      color: #555;
-    }
-    #message {
-      margin-top: 1rem;
-      font-size: 0.95rem;
-      color: #1976d2;
-    }
-    #reportLink {
-      margin-top: auto;
-      margin-bottom: 1rem;
-      font-size: 1.1rem;
-    }
-    #reportLink a {
-      color: #007aff;
-      text-decoration: none;
-      font-weight: 600;
-    }
-    #reportLink a:hover {
-      text-decoration: underline;
-    }
+    .button:disabled { background: #d1d1d6; color: #888; cursor: not-allowed; box-shadow: none; }
+    #clockInBtn { background: #34c759; color: white; }
+    #clockInBtn:hover:not(:disabled) { background: #28a745; }
+    #clockOutBtn { background: #ff3b30; color: white; }
+    #clockOutBtn:hover:not(:disabled) { background: #d32f2f; }
+    #status { margin-top: 2rem; font-size: 1.2rem; font-weight: 500; color: #555; }
+    #message { margin-top: 1rem; font-size: 0.95rem; color: #1976d2; }
+    #reportLink { margin-top: auto; margin-bottom: 1rem; font-size: 1.1rem; }
+    #reportLink a { color: #007aff; text-decoration: none; font-weight: 600; }
+    #reportLink a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -105,11 +57,12 @@
     const statusDiv = document.getElementById("status");
     const messageDiv = document.getElementById("message");
 
-    async function sendRecord(action) {
+    async function sendRecord(action, latitude, longitude) {
       const record = {
         action,
         record_time: new Date().toISOString(),
-        location: { latitude: 37.5049, longitude: 127.0440 } // replace with real GPS if needed
+        latitude,
+        longitude
       };
       try {
         const response = await fetch("/addRecord", {
@@ -119,22 +72,42 @@
         });
         if (!response.ok) throw new Error("Server error");
         const result = await response.json();
-	messageDiv.textContent = `✔ ${action.replace("clock-", "")} recorded at ${new Date(record.record_time).toLocaleString()}`;
+        if (result.success) {
+          messageDiv.textContent = `✔ ${action.replace("clock-", "")} recorded at ${new Date(record.record_time).toLocaleString()}`;
+        } else {
+          messageDiv.textContent = "❌ Failed to save record.";
+        }
       } catch (err) {
         console.error("Error saving record:", err);
         messageDiv.textContent = "❌ Failed to save record.";
       }
     }
 
+    function getLocationAndSend(action) {
+      if (!navigator.geolocation) {
+        messageDiv.textContent = "❌ Geolocation not supported.";
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          sendRecord(action, pos.coords.latitude, pos.coords.longitude);
+        },
+        (err) => {
+          console.error("Geolocation error:", err);
+          messageDiv.textContent = "❌ Location not available.";
+        }
+      );
+    }
+
     clockInBtn.addEventListener("click", async () => {
-      await sendRecord("clock-in");
+      getLocationAndSend("clock-in");
       clockInBtn.disabled = true;
       clockOutBtn.disabled = false;
       statusDiv.textContent = "You are currently clocked in.";
     });
 
     clockOutBtn.addEventListener("click", async () => {
-      await sendRecord("clock-out");
+      getLocationAndSend("clock-out");
       clockOutBtn.disabled = true;
       clockInBtn.disabled = false;
       statusDiv.textContent = "You are currently clocked out.";
