@@ -169,7 +169,8 @@
         div.className = `record ${r.action}`;
         const time = new Date(r.time).toLocaleTimeString();
         const mapsUrl = `https://www.google.com/maps?q=${r.location.latitude},${r.location.longitude}`;
-        div.innerHTML = `${r.action.replace("clock-", "Clock ")} at ${time}<br><a class="map-link" href="${mapsUrl}" target="_blank">View on map</a>`;
+        r = r.toUpperCase();
+        div.innerHTML = `${r.action.replace("clock-", "")} at ${time}<br><a class="map-link" href="${mapsUrl}" target="_blank">View on map</a>`;
         dayRecords.push(div);
       });
 
