@@ -33,7 +33,7 @@ app.post("/addRecord", async (req, res) => {
   const { action, time, location } = req.body;
   try {
     await pool.query(
-      "INSERT INTO records (action, time, latitude, longitude) VALUES ($1, $2, $3, $4)",
+      'INSERT INTO records (action, "time", latitude, longitude) VALUES ($1, $2, $3, $4)',
       [action, time, location.latitude, location.longitude]
     );
     res.json({ success: true });
