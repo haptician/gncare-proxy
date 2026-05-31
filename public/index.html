@@ -180,7 +180,7 @@ filtered.forEach(r => {
   const time = new Date(r.time).toLocaleTimeString();
   const mapsUrl = `https://www.google.com/maps?q=${r.location.latitude},${r.location.longitude}`;
   const label = r.action === "clock-in" ? "In" : "Out";
-  div.innerHTML = `${label} at ${time}<br><a class="map-link" href="${mapsUrl}" target="_blank">View on map</a>`;
+  div.innerHTML = `${label} - ${time}<br><a class="map-link" href="${mapsUrl}" target="_blank">View on map</a>`;
   dayRecords.push(div);
 });
 
