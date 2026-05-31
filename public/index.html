@@ -2,30 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Office Report</title>
-  <link rel="apple-touch-icon" sizes="180x180" href="gncare.png">
-  <link rel="apple-touch-icon" sizes="152x152" href="gncare.png">
-  <link rel="apple-touch-icon" sizes="120x120" href="gncare.png">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <title>GN Care Report</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 2rem;
       background: #f9f9f9;
+      color: #333;
     }
     h1 {
-      color: #333;
+      margin-bottom: 1rem;
+    }
+    #controls {
+      margin-bottom: 1rem;
+    }
+    button {
+      margin-right: 0.5rem;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      background: #1976d2;
+      color: #fff;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #1565c0;
     }
     #summary {
       margin-bottom: 1.5rem;
       padding: 1rem;
-      background: #e8f5e9;
-      border: 1px solid #c8e6c9;
+      background: #e3f2fd;
+      border: 1px solid #90caf9;
       border-radius: 5px;
     }
     .record {
       margin: 0.5rem 0;
-      padding: 0.5rem;
+      padding: 0.75rem;
       background: #fff;
       border: 1px solid #ddd;
       border-radius: 4px;
@@ -36,38 +48,94 @@
     .record.clock-out {
       border-left: 5px solid #f44336;
     }
+    a.map-link {
+      margin-left: 0.5rem;
+      font-size: 0.9em;
+      color: #1976d2;
+      text-decoration: none;
+    }
+    a.map-link:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
-  <h1>Report</h1>
+  <h1>GN Care Report</h1>
+  <div id="controls">
+    <button onclick="setFilter('week')">This Week</button>
+    <button onclick="setFilter('month')">This Month</button>
+    <button onclick="setFilter('year')">This Year</button>
+    <button onclick="exportCSV()">Save to CSV</button>
+  </div>
   <div id="summary">Loading summary...</div>
   <div id="records">Loading records...</div>
 
   <script>
+    let allRecords = [];
+    let currentFilter = null;
+
     async function loadRecords() {
       try {
         const response = await fetch("/records");
         if (!response.ok) throw new Error("Failed to fetch records");
-        const records = await response.json();
-
-        // Summary
-        const summaryDiv = document.getElementById("summary");
-        summaryDiv.textContent = `Total records: ${records.length}`;
-
-        // Records list
-        const recordsDiv = document.getElementById("records");
-        recordsDiv.innerHTML = "";
-        records.forEach(r => {
-          const div = document.createElement("div");
-          div.className = `record ${r.action}`;
-          const time = new Date(r.time).toLocaleString();
-          div.textContent = `${r.name} ${r.action} at ${time} (lat: ${r.location.latitude}, lon: ${r.location.longitude})`;
-          recordsDiv.appendChild(div);
-        });
+        allRecords = await response.json();
+        renderRecords();
       } catch (err) {
         document.getElementById("summary").textContent = "Error loading records.";
         console.error(err);
       }
+    }
+
+    function setFilter(filter) {
+      currentFilter = filter;
+      renderRecords();
+    }
+
+    function renderRecords() {
+      const now = new Date();
+      let filtered = allRecords;
+
+      if (currentFilter === "week") {
+        const startOfWeek = new Date(now);
+        startOfWeek.setDate(now.getDate() - now.getDay()); // Sunday
+        filtered = allRecords.filter(r => new Date(r.time) >= startOfWeek);
+      } else if (currentFilter === "month") {
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        filtered = allRecords.filter(r => new Date(r.time) >= startOfMonth);
+      } else if (currentFilter === "year") {
+        const startOfYear = new Date(now.getFullYear(), 0, 1);
+        filtered = allRecords.filter(r => new Date(r.time) >= startOfYear);
+      }
+
+      // Summary
+      const summaryDiv = document.getElementById("summary");
+      summaryDiv.textContent = `Total records: ${filtered.length}`;
+
+      // Records list
+      const recordsDiv = document.getElementById("records");
+      recordsDiv.innerHTML = "";
+      filtered.forEach(r => {
+        const div = document.createElement("div");
+        div.className = `record ${r.action}`;
+        const time = new Date(r.time).toLocaleString();
+        const mapsUrl = `https://www.google.com/maps?q=${r.location.latitude},${r.location.longitude}`;
+        div.innerHTML = `${r.action.replace("clock-", "Clock ")} at ${time} <a class="map-link" href="${mapsUrl}" target="_blank">View on map</a>`;
+        recordsDiv.appendChild(div);
+      });
+    }
+
+    function exportCSV() {
+      const rows = [["Action", "Time", "Latitude", "Longitude"]];
+      allRecords.forEach(r => {
+        rows.push([r.action, new Date(r.time).toLocaleString(), r.location.latitude, r.location.longitude]);
+      });
+      let csvContent = rows.map(e => e.join(",")).join("\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", "gncare_report.csv");
+      link.click();
     }
 
     loadRecords();
