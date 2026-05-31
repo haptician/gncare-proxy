@@ -55,16 +55,31 @@
     #clockOutBtn:hover:not(:disabled) {
       background: #d32f2f;
     }
+    #status {
+      margin-top: 2rem;
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #555;
+    }
+    #message {
+      margin-top: 1rem;
+      font-size: 0.95rem;
+      color: #1976d2;
+    }
   </style>
 </head>
 <body>
   <h1>Office Clock</h1>
   <button id="clockInBtn" class="button">Clock In</button>
   <button id="clockOutBtn" class="button" disabled>Clock Out</button>
+  <div id="status">You are currently clocked out.</div>
+  <div id="message"></div>
 
   <script>
     const clockInBtn = document.getElementById("clockInBtn");
     const clockOutBtn = document.getElementById("clockOutBtn");
+    const statusDiv = document.getElementById("status");
+    const messageDiv = document.getElementById("message");
 
     async function sendRecord(action) {
       const record = {
@@ -72,25 +87,34 @@
         time: new Date().toISOString(),
         location: { latitude: 37.5049, longitude: 127.0440 } // replace with real GPS if needed
       };
-      await fetch("/addRecord", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(record)
-      });
+      try {
+        const response = await fetch("/addRecord", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(record)
+        });
+        if (!response.ok) throw new Error("Server error");
+        const result = await response.json();
+        messageDiv.textContent = `✔ ${action.replace("clock-", "Clock ")} recorded at ${new Date(record.time).toLocaleString()}`;
+      } catch (err) {
+        console.error("Error saving record:", err);
+        messageDiv.textContent = "❌ Failed to save record.";
+      }
     }
 
     clockInBtn.addEventListener("click", async () => {
       await sendRecord("clock-in");
       clockInBtn.disabled = true;
       clockOutBtn.disabled = false;
+      statusDiv.textContent = "You are currently clocked in.";
     });
 
     clockOutBtn.addEventListener("click", async () => {
       await sendRecord("clock-out");
       clockOutBtn.disabled = true;
       clockInBtn.disabled = false;
+      statusDiv.textContent = "You are currently clocked out.";
     });
   </script>
 </body>
 </html>
-
