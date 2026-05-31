@@ -138,17 +138,29 @@
       let currentDate = null;
       let dayRecords = [];
 
-      function flushDay() {
-        if (dayRecords.length > 0) {
-          dayRecords.sort((a, b) => {
-            if (a.dataset.action === "clock-in" && b.dataset.action === "clock-out") return -1;
-            if (a.dataset.action === "clock-out" && b.dataset.action === "clock-in") return 1;
-            return new Date(a.dataset.time) - new Date(b.dataset.time);
-          });
-          dayRecords.forEach(r => recordsDiv.appendChild(r));
-          dayRecords = [];
+	    function flushDay() {
+  if (dayRecords.length > 0) {
+    // Sort strictly by time
+    dayRecords.sort((a, b) => new Date(a.dataset.time) - new Date(b.dataset.time));
+
+    // Walk through and pair clock-in with next clock-out
+    for (let i = 0; i < dayRecords.length; i++) {
+      const rec = dayRecords[i];
+      if (rec.dataset.action === "clock-in") {
+        recordsDiv.appendChild(rec);
+        // look ahead for a clock-out
+        if (i + 1 < dayRecords.length && dayRecords[i+1].dataset.action === "clock-out") {
+          recordsDiv.appendChild(dayRecords[i+1]);
+          i++; // skip the paired out
         }
+      } else {
+        // if an out has no matching in, just show it
+        recordsDiv.appendChild(rec);
       }
+    }
+    dayRecords = [];
+  }
+}
 
       filtered.forEach(r => {
         const recordDate = new Date(r.record_time).toLocaleDateString();
