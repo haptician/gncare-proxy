@@ -29,12 +29,13 @@
       justify-content: center;
       margin-bottom: 1rem;
       gap: 0.5rem;
-      flex-wrap: nowrap; /* force single row */
+      flex-wrap: wrap; /* allow wrapping if needed */
     }
     button {
-      flex: 1 1 auto;
-      padding: 0.8rem 1rem;
-      font-size: 1rem;
+      flex: 1 1 22%;       /* roughly 4 per row */
+      max-width: 120px;    /* prevent overflow */
+      padding: 0.8rem 0.5rem;
+      font-size: 0.9rem;
       font-weight: 600;
       border: none;
       border-radius: 10px;
@@ -46,6 +47,12 @@
     }
     button:hover {
       background: #1565c0;
+    }
+    @media (max-width: 400px) {
+      button {
+        flex: 1 1 45%;   /* two per row on very small screens */
+        max-width: none;
+      }
     }
     .date-header {
       margin-top: 1rem;
@@ -169,7 +176,6 @@
         div.className = `record ${r.action}`;
         const time = new Date(r.time).toLocaleTimeString();
         const mapsUrl = `https://www.google.com/maps?q=${r.location.latitude},${r.location.longitude}`;
-        // Show just "In" or "Out"
         const label = r.action === "clock-in" ? "In" : "Out";
         div.innerHTML = `${label} at ${time}<br><a class="map-link" href="${mapsUrl}" target="_blank">View on map</a>`;
         dayRecords.push(div);
