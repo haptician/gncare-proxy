@@ -30,31 +30,19 @@ app.get("/records", async (req, res) => {
 
 // Add a record
 app.post("/addRecord", async (req, res) => {
-  const { action, record_time, location } = req.body;
+  const { action, record_time, latitude, longitude } = req.body;
   try {
-    // Check if a record already exists with the same action + record_time
-    const existing = await pool.query(
-      "SELECT id FROM records WHERE action = $1 AND record_time = $2",
-      [action, record_time]
-    );
-
-    if (existing.rows.length > 0) {
-      // Duplicate found — skip insert
-      return res.json({ success: false, message: "Duplicate record skipped" });
-    }
-
-    // Otherwise, insert new record
     await pool.query(
       "INSERT INTO records (action, record_time, latitude, longitude) VALUES ($1, $2, $3, $4)",
-      [action, record_time, location.latitude, location.longitude]
+      [action, record_time, latitude, longitude]
     );
-
     res.json({ success: true });
   } catch (err) {
     console.error("Error adding record:", err.message);
     res.status(500).json({ error: err.message });
   }
 });
+//
 // Get all records
 app.get("/records", async (req, res) => {
   try {
