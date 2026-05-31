@@ -28,18 +28,29 @@ app.get("/records", async (req, res) => {
   }
 });
 
-// Route: add a record
+// Add a record
 app.post("/addRecord", async (req, res) => {
-  const { action, time, location } = req.body;
+  const { action, record_time, location } = req.body;
   try {
     await pool.query(
-      'INSERT INTO records (action, "time", latitude, longitude) VALUES ($1, $2, $3, $4)',
-      [action, time, location.latitude, location.longitude]
+      "INSERT INTO records (action, record_time, latitude, longitude) VALUES ($1, $2, $3, $4)",
+      [action, record_time, location.latitude, location.longitude]
     );
     res.json({ success: true });
   } catch (err) {
     console.error("Error adding record:", err);
     res.status(500).json({ error: "Error adding record" });
+  }
+});
+
+// Get all records
+app.get("/records", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM records ORDER BY record_time DESC");
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Error fetching records:", err);
+    res.status(500).json({ error: "Error fetching records" });
   }
 });
 
