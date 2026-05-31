@@ -1,6 +1,6 @@
 const express = require("express");
-const fs = require("fs");
 const path = require("path");
+const { Pool } = require("pg");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -11,45 +11,36 @@ app.use(express.json());
 // Serve static files (frontend pages)
 app.use(express.static(path.join(__dirname, "public")));
 
-// Path to records file
-const recordsFile = path.join(__dirname, "records.json");
-
-// Helper: load records
-function loadRecords() {
-  try {
-    return JSON.parse(fs.readFileSync(recordsFile, "utf8"));
-  } catch (err) {
-    console.error("Error reading records.json:", err);
-    return [];
-  }
-}
-
-// Helper: save records
-function saveRecords(records) {
-  fs.writeFileSync(recordsFile, JSON.stringify(records, null, 2));
-}
+// Connect to Supabase Postgres using DATABASE_URL
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
 
 // Route: get all records
-app.get("/records", (req, res) => {
-  const records = loadRecords();
-  res.json(records);
+app.get("/records", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM records ORDER BY time DESC");
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Error fetching records:", err);
+    res.status(500).json({ error: "Error fetching records" });
+  }
 });
 
 // Route: add a record
-app.post("/addRecord", (req, res) => {
-  const newRecord = req.body;
-
-  // Load existing records
-  const records = loadRecords();
-
-  // Append new record
-  records.push(newRecord);
-
-  // Save back to file
-  saveRecords(records);
-
-  // ✅ Always respond with success JSON
-  res.json({ success: true });
+app.post("/addRecord", async (req, res) => {
+  const { action, time, location } = req.body;
+  try {
+    await pool.query(
+      "INSERT INTO records (action, time, latitude, longitude) VALUES ($1, $2, $3, $4)",
+      [action, time, location.latitude, location.longitude]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Error adding record:", err);
+    res.status(500).json({ error: "Error adding record" });
+  }
 });
 
 // Start server
