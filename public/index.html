@@ -254,6 +254,36 @@
       }
     }
 
+function exportCSV() {
+  // Ask for confirmation first
+  const confirmExport = confirm("Do you want to export the attendance data to CSV?");
+  if (!confirmExport) {
+    return; // User canceled
+  }
+
+  // Grab the table
+  const table = document.getElementById("attendanceTable");
+  let csvContent = "";
+
+  // Loop through rows
+  for (let row of table.rows) {
+    let rowData = [];
+    for (let cell of row.cells) {
+      // Escape quotes and commas properly
+      let text = cell.innerText.replace(/"/g, '""');
+      rowData.push(`"${text}"`);
+    }
+    csvContent += rowData.join(",") + "\n";
+  }
+
+  // Create a downloadable blob
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "attendance.csv";
+  link.click();
+}
+
 		    function renderCalendar() {
       const calendarDiv = document.getElementById("calendar");
       calendarDiv.innerHTML = "";
