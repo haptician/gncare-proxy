@@ -162,29 +162,33 @@
   }
 }
 
-      filtered.forEach(r => {
-        const recordDate = new Date(r.record_time).toLocaleDateString();
-        if (recordDate !== currentDate) {
-          flushDay();
-          currentDate = recordDate;
-          const dateHeader = document.createElement("div");
-          dateHeader.className = "date-header";
-          dateHeader.textContent = recordDate;
-          recordsDiv.appendChild(dateHeader);
-        }
-        const div = document.createElement("div");
-        div.className = `record ${r.action}`;
-        div.dataset.action = r.action;
-        div.dataset.time = r.record_time;
-        const time = new Date(r.record_time).toLocaleTimeString();
-        const mapsUrl = `https://www.google.com/maps?q=${r.latitude},${r.longitude}`;
-        const label = r.action === "clock-in" ? "In" : "Out";
-        div.innerHTML = `${label} - ${time}<br><a class="map-link" href="${mapsUrl}" target="_blank">View on map</a>`;
-        dayRecords.push(div);
-      });
+    filtered.forEach((r, idx) => {
+  const recordDate = new Date(r.record_time).toLocaleDateString();
+  if (recordDate !== currentDate) {
+    // If we already have records for a previous date, flush them first
+    flushDay();
+    currentDate = recordDate;
+    const dateHeader = document.createElement("div");
+    dateHeader.className = "date-header";
+    dateHeader.textContent = recordDate;
+    recordsDiv.appendChild(dateHeader);
+  }
 
-      flushDay();
-    }
+  const div = document.createElement("div");
+  div.className = `record ${r.action}`;
+  div.dataset.action = r.action;
+  div.dataset.time = r.record_time;
+  const time = new Date(r.record_time).toLocaleTimeString();
+  const mapsUrl = `https://www.google.com/maps?q=${r.latitude},${r.longitude}`;
+  const label = r.action === "clock-in" ? "In" : "Out";
+  div.innerHTML = `${label} - ${time}<br><a class="map-link" href="${mapsUrl}" target="_blank">View on map</a>`;
+  dayRecords.push(div);
+
+  // If this is the last record, flush whatever is left
+  if (idx === filtered.length - 1) {
+    flushDay();
+  }
+});
 
     function exportCSV() {
       const rows = [["Action", "Time", "Latitude", "Longitude"]];
