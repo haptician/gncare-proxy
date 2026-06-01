@@ -103,6 +103,7 @@
         allRecords = await response.json();
         console.log("Fetched records:", allRecords);
         renderRecords();
+	renderCalendar();
       } catch (err) {
         document.getElementById("records").textContent = "Error loading records.";
         console.error(err);
