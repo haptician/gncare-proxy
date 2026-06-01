@@ -118,35 +118,68 @@ renderRecords();
     }
 
     function renderRecords() {
-      const now = new Date();
-      let filtered = allRecords;
+  try {
+    const now = new Date();
+    let filtered = allRecords;
 
-      if (currentFilter === "week") {
-        const startOfWeek = new Date(now);
-        const day = startOfWeek.getDay();
-        const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
-        startOfWeek.setDate(diff);
-        startOfWeek.setHours(0,0,0,0);
-        filtered = allRecords.filter(r => new Date(r.record_time) >= startOfWeek);
-      } else if (currentFilter === "month") {
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-        filtered = allRecords.filter(r => new Date(r.record_time) >= startOfMonth);
+    // ... your existing filtering/sorting code ...
+
+    const recordsDiv = document.getElementById("records");
+    recordsDiv.innerHTML = "";
+
+    let currentDate = null;
+    let dayRecords = [];
+
+    function flushDay() {
+      if (dayRecords.length > 0) {
+        dayRecords.sort((a, b) => new Date(a.dataset.time) - new Date(b.dataset.time));
+        for (let i = 0; i < dayRecords.length; i++) {
+          const rec = dayRecords[i];
+          if (rec.dataset.action === "clock-in") {
+            recordsDiv.appendChild(rec);
+            if (i + 1 < dayRecords.length && dayRecords[i+1].dataset.action === "clock-out") {
+              recordsDiv.appendChild(dayRecords[i+1]);
+              i++;
+            }
+          } else {
+            recordsDiv.appendChild(rec);
+          }
+        }
+        dayRecords = [];
+      }
+    }
+
+    filtered.forEach((r, idx) => {
+      const recordDate = new Date(r.record_time).toLocaleDateString();
+      if (recordDate !== currentDate) {
+        flushDay();
+        currentDate = recordDate;
+        const dateHeader = document.createElement("div");
+        dateHeader.className = "date-header";
+        dateHeader.textContent = recordDate;
+        recordsDiv.appendChild(dateHeader);
       }
 
-      // Sort newest first
-      filtered.sort((a, b) => new Date(b.record_time) - new Date(a.record_time));
+      const div = document.createElement("div");
+      div.className = `record ${r.action}`;
+      div.dataset.action = r.action;
+      div.dataset.time = r.record_time;
+      const time = new Date(r.record_time).toLocaleTimeString();
+      const mapsUrl = `https://www.google.com/maps?q=${r.latitude},${r.longitude}`;
+      const label = r.action === "clock-in" ? "In" : "Out";
+      div.innerHTML = `${label} - ${time}<br><a class="map-link" href="${mapsUrl}" target="_blank">View on map</a>`;
+      dayRecords.push(div);
 
-      const recordsDiv = document.getElementById("records");
-      recordsDiv.innerHTML = "";
+      if (idx === filtered.length - 1) {
+        flushDay();
+      }
+    });
 
-      let currentDate = null;
-      let dayRecords = [];
-
-	    function flushDay() {
-  if (dayRecords.length > 0) {
-    // Sort strictly by time
-    dayRecords.sort((a, b) => new Date(a.dataset.time) - new Date(b.dataset.time));
-
+  } catch (err) {
+    console.error("Error in renderRecords:", err);
+    document.getElementById("records").textContent = "Error rendering records.";
+  }
+}
     // Walk through and pair clock-in with next clock-out
     for (let i = 0; i < dayRecords.length; i++) {
       const rec = dayRecords[i];
