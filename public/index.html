@@ -289,37 +289,41 @@ function showToast(message) {
     }
 
 function exportCSV() {
-  // Ask for confirmation first
   const confirmExport = confirm("Do you want to export the attendance data to CSV?");
-  if (!confirmExport) {
-    return; // User canceled
-  }
+  if (!confirmExport) return;
 
-  // Grab the table
-  const table = document.getElementById("attendanceTable");
-  let csvContent = "";
+  const records = currentFilter ? getFilteredRecords() : allRecords;
 
-  // Loop through rows
-  for (let row of table.rows) {
-    let rowData = [];
-    for (let cell of row.cells) {
-      // Escape quotes and commas properly
-      let text = cell.innerText.replace(/"/g, '""');
-      rowData.push(`"${text}"`);
-    }
-    csvContent += rowData.join(",") + "\n";
-  }
+  let csvContent = '"Date","Time","Action","Latitude","Longitude"\n';
+  records.forEach(r => {
+    const date = new Date(r.record_time).toLocaleDateString();
+    const time = new Date(r.record_time).toLocaleTimeString();
+    csvContent += `"${date}","${time}","${r.action}","${r.latitude}","${r.longitude}"\n`;
+  });
 
-  // Create a downloadable blob
   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
   link.download = "attendance.csv";
   link.click();
 
-// Show toast instead of alert
   showToast("CSV exported successfully ✅");
+}
 
+// Pull out the filter logic so both renderRecords() and exportCSV() can use it
+function getFilteredRecords() {
+  const now = new Date();
+  if (currentFilter === "week") {
+    const startOfWeek = new Date(now);
+    const day = startOfWeek.getDay();
+    startOfWeek.setDate(startOfWeek.getDate() - day + (day === 0 ? -6 : 1));
+    startOfWeek.setHours(0, 0, 0, 0);
+    return allRecords.filter(r => new Date(r.record_time) >= startOfWeek);
+  } else if (currentFilter === "month") {
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    return allRecords.filter(r => new Date(r.record_time) >= startOfMonth);
+  }
+  return allRecords;
 }
 
 		    function renderCalendar() {
