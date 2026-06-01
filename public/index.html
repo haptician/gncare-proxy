@@ -98,6 +98,10 @@
 
     async function loadRecords() {
       try {
+	      allRecords = await response.json();
+console.log("Fetched records:", allRecords);
+renderRecords();
+
         const response = await fetch("/records");
         if (!response.ok) throw new Error("Failed to fetch records");
         allRecords = await response.json();

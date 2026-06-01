@@ -43,17 +43,6 @@ app.post("/addRecord", async (req, res) => {
   }
 });
 //
-// Get all records
-app.get("/records", async (req, res) => {
-  try {
-    const result = await pool.query("SELECT * FROM records ORDER BY record_time DESC");
-    res.json(result.rows);
-  } catch (err) {
-    console.error("Error fetching records:", err);
-    res.status(500).json({ error: "Error fetching records" });
-  }
-});
-
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
