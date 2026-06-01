@@ -265,13 +265,18 @@
           new Date(r.record_time).toLocaleDateString() === dateStr
         );
 
-        if (dayRecords.length > 0) {
-          cell.style.backgroundColor = "#e3f2fd";
-          cell.title = dayRecords.map(r => {
-            const time = new Date(r.record_time).toLocaleTimeString();
-            return `${r.action}: ${time}`;
-          }).join("\n");
-        }
+	      if (dayRecords.length > 0) {
+  cell.style.backgroundColor = "#e3f2fd";
+
+  // Sort records by time ascending so In shows before Out
+  dayRecords.sort((a, b) => new Date(a.record_time) - new Date(b.record_time));
+
+  cell.title = dayRecords.map(r => {
+    const time = new Date(r.record_time).toLocaleTimeString();
+    const label = (r.action === "clock-in") ? "In" : "Out";
+    return `${label}: ${time}`;
+  }).join("\n");
+}
 
         row.appendChild(cell);
 
