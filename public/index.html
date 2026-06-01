@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -45,7 +46,12 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
       text-align: center;
     }
-    button:hover { background: #1565c0; }
+    button:hover:enabled { background: #1565c0; }
+    button:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
     @media (max-width: 480px) {
       button { flex: 1 1 45%; max-width: none; }
     }
@@ -79,6 +85,24 @@
       text-decoration: none;
     }
     a.map-link:hover { text-decoration: underline; }
+    #calendar-controls {
+      text-align: center;
+      margin-top: 2rem;
+    }
+    #calendar-title {
+      margin: 0 1rem;
+      font-weight: 600;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 1rem;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -90,21 +114,27 @@
     <button onclick="exportCSV()">Save to CSV</button>
   </div>
   <div id="records">Loading records...</div>
+
+  <div id="calendar-controls">
+    <button id="prevBtn" onclick="changeMonth(-1)">Previous</button>
+    <span id="calendar-title"></span>
+    <button id="nextBtn" onclick="changeMonth(1)">Next</button>
+  </div>
   <div id="calendar"></div>
 
   <script>
     let allRecords = [];
     let currentFilter = "week"; // default to weekly view
+    let calendarYear = new Date().getFullYear();
+    let calendarMonth = new Date().getMonth(); // 0 = Jan
 
     async function loadRecords() {
       try {
         const response = await fetch("/records");
-        console.log("Response status:", response.status);
         if (!response.ok) throw new Error("Failed to fetch records");
         allRecords = await response.json();
-        console.log("Fetched records:", allRecords);
         renderRecords();
-	renderCalendar();
+        renderCalendar();
       } catch (err) {
         document.getElementById("records").textContent = "Error loading records.";
         console.error(err);
@@ -133,7 +163,6 @@
           filtered = allRecords.filter(r => new Date(r.record_time) >= startOfMonth);
         }
 
-        // Sort newest first
         filtered.sort((a, b) => new Date(b.record_time) - new Date(a.record_time));
 
         const recordsDiv = document.getElementById("records");
@@ -161,7 +190,7 @@
           }
         }
 
-        filtered.forEach((r, idx) => {
+	              filtered.forEach((r, idx) => {
           const recordDate = new Date(r.record_time).toLocaleDateString();
           if (recordDate !== currentDate) {
             flushDay();
@@ -197,96 +226,102 @@
       }
     }
 
-    function exportCSV() {
-      const rows = [["Action", "Time", "Latitude", "Longitude"]];
-      allRecords.forEach(r => {
-        rows.push([r.action, new Date(r.record_time).toLocaleString(), r.latitude, r.longitude]);
+		    function renderCalendar() {
+      const calendarDiv = document.getElementById("calendar");
+      calendarDiv.innerHTML = "";
+
+      const year = calendarYear;
+      const month = calendarMonth;
+
+      // Update title
+      const monthNames = ["January","February","March","April","May","June","July",
+                          "August","September","October","November","December"];
+      document.getElementById("calendar-title").textContent = `${monthNames[month]} ${year}`;
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      const table = document.createElement("table");
+      const headerRow = document.createElement("tr");
+      ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(d => {
+        const th = document.createElement("th");
+        th.textContent = d;
+        headerRow.appendChild(th);
       });
-      let csvContent = rows.map(e => e.join(",")).join("\n");
-      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.setAttribute("href", url);
-      link.setAttribute("download", "gncare_report.csv");
-      link.click();
+      table.appendChild(headerRow);
+
+      let row = document.createElement("tr");
+      for (let i = 0; i < firstDay; i++) {
+        row.appendChild(document.createElement("td"));
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const cell = document.createElement("td");
+        cell.textContent = day;
+        cell.style.cursor = "pointer";
+
+        const dateStr = new Date(year, month, day).toLocaleDateString();
+        const dayRecords = allRecords.filter(r =>
+          new Date(r.record_time).toLocaleDateString() === dateStr
+        );
+
+        if (dayRecords.length > 0) {
+          cell.style.backgroundColor = "#e3f2fd";
+          cell.title = dayRecords.map(r => {
+            const time = new Date(r.record_time).toLocaleTimeString();
+            return `${r.action}: ${time}`;
+          }).join("\n");
+        }
+
+        row.appendChild(cell);
+
+        if ((day + firstDay) % 7 === 0) {
+          table.appendChild(row);
+          row = document.createElement("tr");
+        }
+      }
+
+      if (row.children.length > 0) {
+        while (row.children.length < 7) {
+          row.appendChild(document.createElement("td"));
+        }
+        table.appendChild(row);
+      }
+
+      calendarDiv.appendChild(table);
+
+      // Disable navigation buttons if no data in that month
+      const prevMonth = (month === 0) ? 11 : month - 1;
+      const prevYear = (month === 0) ? year - 1 : year;
+      const nextMonth = (month === 11) ? 0 : month + 1;
+      const nextYear = (month === 11) ? year + 1 : year;
+
+      const hasPrevData = allRecords.some(r => {
+        const d = new Date(r.record_time);
+        return d.getFullYear() === prevYear && d.getMonth() === prevMonth;
+      });
+      const hasNextData = allRecords.some(r => {
+        const d = new Date(r.record_time);
+        return d.getFullYear() === nextYear && d.getMonth() === nextMonth;
+      });
+
+      document.getElementById("prevBtn").disabled = !hasPrevData;
+      document.getElementById("nextBtn").disabled = !hasNextData;
+    }
+
+    function changeMonth(offset) {
+      calendarMonth += offset;
+      if (calendarMonth < 0) {
+        calendarMonth = 11;
+        calendarYear--;
+      } else if (calendarMonth > 11) {
+        calendarMonth = 0;
+        calendarYear++;
+      }
+      renderCalendar();
     }
 
     loadRecords();
-
-    function renderCalendar() {
-  const calendarDiv = document.getElementById("calendar");
-  calendarDiv.innerHTML = "";
-
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
-
-  // First day of month
-  const firstDay = new Date(year, month, 1).getDay();
-  // Number of days in month
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-  const table = document.createElement("table");
-  table.style.borderCollapse = "collapse";
-  table.style.width = "100%";
-  table.style.marginTop = "2rem";
-
-  const headerRow = document.createElement("tr");
-  ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(d => {
-    const th = document.createElement("th");
-    th.textContent = d;
-    th.style.padding = "5px";
-    th.style.border = "1px solid #ccc";
-    headerRow.appendChild(th);
-  });
-  table.appendChild(headerRow);
-
-  let row = document.createElement("tr");
-  // Empty cells before first day
-  for (let i = 0; i < firstDay; i++) {
-    row.appendChild(document.createElement("td"));
-  }
-
-  for (let day = 1; day <= daysInMonth; day++) {
-    const cell = document.createElement("td");
-    cell.textContent = day;
-    cell.style.padding = "10px";
-    cell.style.border = "1px solid #ccc";
-    cell.style.textAlign = "center";
-    cell.style.cursor = "pointer";
-
-    // Hover tooltip with records
-    const dateStr = new Date(year, month, day).toLocaleDateString();
-    const dayRecords = allRecords.filter(r => {
-      return new Date(r.record_time).toLocaleDateString() === dateStr;
-    });
-
-    if (dayRecords.length > 0) {
-      cell.style.backgroundColor = "#e3f2fd"; // highlight days with records
-      cell.title = dayRecords.map(r => {
-        const time = new Date(r.record_time).toLocaleTimeString();
-        return `${r.action}: ${time}`;
-      }).join("\n");
-    }
-
-    row.appendChild(cell);
-
-    if ((day + firstDay) % 7 === 0) {
-      table.appendChild(row);
-      row = document.createElement("tr");
-    }
-  }
-
-  // Fill remaining cells
-  if (row.children.length > 0) {
-    while (row.children.length < 7) {
-      row.appendChild(document.createElement("td"));
-    }
-    table.appendChild(row);
-  }
-
-  calendarDiv.appendChild(table);
-}
   </script>
 </body>
 </html>
