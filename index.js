@@ -28,6 +28,32 @@ app.get("/records", async (req, res) => {
   }
 });
 
+// Example: index.js (Express backend)
+app.get("/currentStatus", async (req, res) => {
+  try {
+    // Query your database for the latest record
+    const latestRecord = await db.collection("records")
+      .find({})
+      .sort({ record_time: -1 })
+      .limit(1)
+      .toArray();
+
+    if (latestRecord.length === 0) {
+      return res.json({ status: "clocked-out" }); // default if no records
+    }
+
+    const lastAction = latestRecord[0].action;
+    if (lastAction === "clock-in") {
+      res.json({ status: "clocked-in" });
+    } else {
+      res.json({ status: "clocked-out" });
+    }
+  } catch (err) {
+    console.error("Error fetching current status:", err);
+    res.status(500).json({ status: "unknown" });
+  }
+});
+
 // Add a record
 app.post("/addRecord", async (req, res) => {
   const { action, record_time, latitude, longitude } = req.body;
