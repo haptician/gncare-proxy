@@ -103,6 +103,29 @@
       padding: 10px;
       text-align: center;
     }
+    [data-tooltip] { position: relative; }
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  color: #333;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  white-space: pre;
+  line-height: 1.6;
+  z-index: 10;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  min-width: 100px;
+  text-align: left;
+}
+[data-tooltip]:hover::after { opacity: 1; }
   </style>
 </head>
 <body>
@@ -123,6 +146,11 @@
   <div id="calendar"></div>
 
   <script>
+  function toDateKey(date) {
+  const d = new Date(date);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
     let allRecords = [];
     let currentFilter = "week"; // default to weekly view
     let calendarYear = new Date().getFullYear();
@@ -260,10 +288,8 @@
         cell.textContent = day;
         cell.style.cursor = "pointer";
 
-        const dateStr = new Date(year, month, day).toLocaleDateString();
-        const dayRecords = allRecords.filter(r =>
-          new Date(r.record_time).toLocaleDateString() === dateStr
-        );
+	      const dateStr = toDateKey(new Date(year, month, day));
+const dayRecords = allRecords.filter(r => toDateKey(r.record_time) === dateStr);
 
 	      if (dayRecords.length > 0) {
   cell.style.backgroundColor = "#e3f2fd";
@@ -271,11 +297,11 @@
   // Sort records by time ascending so In shows before Out
   dayRecords.sort((a, b) => new Date(a.record_time) - new Date(b.record_time));
 
-  cell.title = dayRecords.map(r => {
-    const time = new Date(r.record_time).toLocaleTimeString();
-    const label = (r.action === "clock-in") ? "In" : "Out";
-    return `${label}: ${time}`;
-  }).join("\n");
+		      cell.dataset.tooltip = dayRecords.map(r => {
+  const time = new Date(r.record_time).toLocaleTimeString();
+  const label = r.action === "clock-in" ? "In" : "Out";
+  return `${label}: ${time}`;
+}).join("\n")
 }
 
         row.appendChild(cell);
