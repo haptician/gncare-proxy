@@ -261,7 +261,7 @@ function showToast(message) {
             dateHeader.className = "date-header";
 	    const dateObj = new Date(r.record_time);
             const dayName = dateObj.toLocaleDateString(undefined, { weekday: 'short' });
-            dateHeader.textContent = `${recordDate} (${dayName})`;
+            dateHeader.textContent = `${recordDate} ${dayName}`;
             recordsDiv.appendChild(dateHeader);
           }
 
