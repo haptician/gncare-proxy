@@ -54,14 +54,17 @@ app.get("/currentStatus", async (req, res) => {
 });
 
 // Add a record
-app.post("/addRecord", async (req, res) => {
-  const { action, record_time, latitude, longitude } = req.body;
+//app.post("/addRecord", async (req, res) => {
+  let { action, record_time, latitude, longitude } = req.body;
+
   if (!action) {
     return res.status(400).json({ error: "action is required" });
   }
+
   if (!record_time) {
-	  record_time =Date.now();
+    record_time = new Date().toISOString(); // safer format for SQL timestamp
   }
+
   try {
     await pool.query(
       "INSERT INTO records (user_id, action, record_time, latitude, longitude) VALUES ($1, $2, $3, $4, $5)",
@@ -73,6 +76,7 @@ app.post("/addRecord", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 //
 // Start server
 app.listen(PORT, () => {
