@@ -55,20 +55,20 @@ app.get("/currentStatus", async (req, res) => {
 
 // Add a record
 app.post("/addRecord", async (req, res) => {
-  let { action, record_time, latitude, longitude } = req.body;
+	let { action, record_time, latitude, longitude } = req.body;
 
   if (!action) {
     return res.status(400).json({ error: "action is required" });
   }
 
-  if (!record_time) {
-    record_time = new Date().toISOString(); // safer format for SQL timestamp
-  }
+	if (!record_time) {
+		record_time = new Date().toISOString(); // safer format for SQL timestamp
+	}
 
   try {
     await pool.query(
-      "INSERT INTO records (user_id, action, record_time, latitude, longitude) VALUES ($1, $2, $3, $4, $5)",
-      [MY_USER_ID, action, record_time, latitude, longitude]
+	    "INSERT INTO records (user_id, action, record_time, latitude, longitude) VALUES ($1, $2, $3, $4, $5)",
+	    [MY_USER_ID, action, record_time, latitude, longitude]
     );
     res.json({ success: true });
   } catch (err) {
@@ -81,26 +81,4 @@ app.post("/addRecord", async (req, res) => {
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-});
-
-// Add these new routes below your existing ones
-
-// Clock-in & Clock-out endpoint (automated)
-app.post("/clock/:action", async (req, res) => {
-	const { action } = req.params;
-  if (!["clock-in", "clock-out"].includes(action)) {
-    return res.status(400).json({ error: "Invalid action" });
-  }
-
-  const { latitude, longitude } = req.body;
-  try {
-    await pool.query(
-      "INSERT INTO records (user_id, action, record_time, latitude, longitude) VALUES ($1, $2, NOW(), $3, $4)",
-      [MY_USER_ID, action, latitude, longitude]
-    );
-    res.json({ success: true, action });
-  } catch (err) {
-    console.error(`Error during ${action}:`, err.message);
-    res.status(500).json({ error: err.message });
-  }
 });
