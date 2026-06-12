@@ -54,7 +54,7 @@ app.get("/currentStatus", async (req, res) => {
 });
 
 // Add a record
-//app.post("/addRecord", async (req, res) => {
+app.post("/addRecord", async (req, res) => {
   let { action, record_time, latitude, longitude } = req.body;
 
   if (!action) {
