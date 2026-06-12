@@ -60,7 +60,7 @@ app.post("/addRecord", async (req, res) => {
     return res.status(400).json({ error: "action is required" });
   }
   if (!record_time) {
-	  record_time =Ddate.now();
+	  record_time =Date.now();
   }
   try {
     await pool.query(
