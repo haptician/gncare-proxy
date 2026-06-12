@@ -56,8 +56,11 @@ app.get("/currentStatus", async (req, res) => {
 // Add a record
 app.post("/addRecord", async (req, res) => {
   const { action, record_time, latitude, longitude } = req.body;
-  if (!action || !record_time) {
-    return res.status(400).json({ error: "action and record_time are required" });
+  if (!action) {
+    return res.status(400).json({ error: "action is required" });
+  }
+  if (!record_time) {
+	  record_time = NOW();
   }
   try {
     await pool.query(
