@@ -13,9 +13,6 @@ if (!process.env.DATABASE_URL || !process.env.SUPABASE_USER_ID) {
 const MY_USER_ID = process.env.SUPABASE_USER_ID;
 
 const VALID_ACTIONS = ["clock-in", "clock-out"];
-if (!VALID_ACTIONS.includes(action)) {
-  return res.status(400).json({ error: "Invalid action" });
-}
 
 // Middleware to parse JSON
 app.use(express.json());
@@ -71,6 +68,9 @@ app.post("/addRecord", async (req, res) => {
   if (!action) {
     return res.status(400).json({ error: "action is required" });
   }
+if (!VALID_ACTIONS.includes(action)) {
+  return res.status(400).json({ error: "Invalid action" });
+}
 
 	if (!record_time) {
 		record_time = new Date().toISOString(); // safer format for SQL timestamp
