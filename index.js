@@ -42,7 +42,6 @@ app.get("/records", async (req, res) => {
 app.get("/currentStatus", async (req, res) => {
   try {
     const result = await pool.query(
-	    const result = await pool.query(
   "SELECT action FROM records WHERE user_id = $1 ORDER BY record_time DESC LIMIT 1",
   [MY_USER_ID]
 );
