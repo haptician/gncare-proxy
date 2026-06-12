@@ -75,7 +75,7 @@ app.post("/addRecord", async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     console.error("Error adding record:", err.message);
-    res.status(500).json({ "Error adding record" });
+    res.status(500).json({ error: "Error adding record" });
   }
 });
 
