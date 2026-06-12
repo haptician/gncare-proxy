@@ -15,6 +15,7 @@ const MY_USER_ID = process.env.SUPABASE_USER_ID;
 const VALID_ACTIONS = ["clock-in", "clock-out"];
 if (!VALID_ACTIONS.includes(action)) {
   return res.status(400).json({ error: "Invalid action" });
+}
 
 // Middleware to parse JSON
 app.use(express.json());
