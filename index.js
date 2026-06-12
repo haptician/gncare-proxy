@@ -46,7 +46,6 @@ app.get("/currentStatus", async (req, res) => {
     const result = await pool.query(
   "SELECT action FROM records WHERE user_id = $1 ORDER BY record_time DESC LIMIT 1",
   [MY_USER_ID]
-	    //"SELECT action FROM records ORDER BY record_time DESC LIMIT 1"
 );
 
     if (result.rows.length === 0) {
@@ -75,6 +74,14 @@ if (!VALID_ACTIONS.includes(action)) {
 	if (!record_time) {
 		record_time = new Date().toISOString(); // safer format for SQL timestamp
 	}
+
+if (record_time) {
+  const parsed = new Date(record_time);
+  if (isNaN(parsed.getTime())) {
+    return res.status(400).json({ error: "Invalid record_time" });
+  }
+  record_time = parsed.toISOString();
+}
 
   try {
     await pool.query(
