@@ -78,22 +78,32 @@ app.listen(PORT, () => {
 
 // Add these new routes below your existing ones
 
-// Clock-in & Clock-out endpoint (automated)
-app.post("/clock/:action", async (req, res) => {
-  const { action } = req.params;
-  if (!["clock-in", "clock-out"].includes(action)) {
-    return res.status(400).json({ error: "Invalid action" });
-  }
-
+// Clock-in endpoint (automated)
+app.post("/clock-in", async (req, res) => {
   const { latitude, longitude } = req.body;
   try {
     await pool.query(
       "INSERT INTO records (user_id, action, record_time, latitude, longitude) VALUES ($1, $2, NOW(), $3, $4)",
-      [MY_USER_ID, action, latitude, longitude]
+      [MY_USER_ID, "clock-in", latitude, longitude]
     );
-    res.json({ success: true, action });
+    res.json({ success: true, action: "clock-in" });
   } catch (err) {
-    console.error(`Error during ${action}:`, err.message);
+    console.error("Error clocking in:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Clock-out endpoint (automated)
+app.post("/clock-out", async (req, res) => {
+  const { latitude, longitude } = req.body;
+  try {
+    await pool.query(
+      "INSERT INTO records (user_id, action, record_time, latitude, longitude) VALUES ($1, $2, NOW(), $3, $4)",
+      [MY_USER_ID, "clock-out", latitude, longitude]
+    );
+    res.json({ success: true, action: "clock-out" });
+  } catch (err) {
+    console.error("Error clocking out:", err.message);
     res.status(500).json({ error: err.message });
   }
 });
