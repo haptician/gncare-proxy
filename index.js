@@ -14,6 +14,9 @@ const MY_USER_ID = process.env.SUPABASE_USER_ID;
 
 const VALID_ACTIONS = ["clock-in", "clock-out"];
 
+const default_latitude =37.502750
+const default_longitude = 127.059750;
+
 // Middleware to parse JSON
 app.use(express.json());
 
@@ -82,6 +85,9 @@ if (record_time) {
   }
   record_time = parsed.toISOString();
 }
+
+if (!latitude) { latitude = default_latitude; }
+if (!longitude) { longitude = default_longitude; }
 
   try {
     await pool.query(
