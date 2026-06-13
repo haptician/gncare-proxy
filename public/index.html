@@ -142,7 +142,7 @@
 
 /* Pending/empty cell: gray bar + light gray background */
 .record-row .record.out.empty {
-  //border-left: 6px solid #999;
+  border-left: 6px solid #999;
   background-color: #f5f5f5;
   color: #888;
   font-style: italic;
@@ -308,52 +308,65 @@ function showToast(message) {
 
 	  function flushDay() {
   if (dayRecords.length > 0) {
-    let i = 0;
-    const frag = document.createDocumentFragment();
+    dayRecords.sort((a, b) => new Date(a.dataset.time) - new Date(b.dataset.time));
 
+    let i = 0;
     while (i < dayRecords.length) {
       const rec = dayRecords[i];
 
       if (rec.dataset.action === "clock-in") {
-        rec.className = "record in";
-        const inDiv = rec;
+        // Build In cell
+        const inDiv = document.createElement("div");
+        inDiv.className = "record in";
+        inDiv.dataset.action = "clock-in";
+        inDiv.dataset.time = rec.dataset.time;
+        inDiv.innerHTML = rec.innerHTML;
 
-        let outDiv;
+        let outDiv = null;
         if (i + 1 < dayRecords.length && dayRecords[i+1].dataset.action === "clock-out") {
-          dayRecords[i+1].className = "record out";
-          outDiv = dayRecords[i+1];
-          i += 2;
+          const nextRec = dayRecords[i+1];
+          outDiv = document.createElement("div");
+          outDiv.className = "record out";
+          outDiv.dataset.action = "clock-out";
+          outDiv.dataset.time = nextRec.dataset.time;
+          outDiv.innerHTML = nextRec.innerHTML;
+          i += 2; // skip both in/out
         } else {
+          // No matching out → show pending
           outDiv = document.createElement("div");
           outDiv.className = "record out empty";
           outDiv.textContent = "Out - (pending)";
-          i += 1;
+          i += 1; // skip only the in
         }
 
         const row = document.createElement("div");
         row.className = "record-row";
         row.appendChild(inDiv);
         row.appendChild(outDiv);
-        frag.appendChild(row);
+        recordsDiv.appendChild(row);
 
-      } else {
-        rec.className = "record out";
-        const outDiv = rec;
+      } else if (rec.dataset.action === "clock-out") {
+        // Handle stray clock-out with no in
+        const row = document.createElement("div");
+        row.className = "record-row";
 
         const emptyIn = document.createElement("div");
         emptyIn.className = "record in empty";
         emptyIn.textContent = "In - (missing)";
-
-        const row = document.createElement("div");
-        row.className = "record-row";
         row.appendChild(emptyIn);
+
+        const outDiv = document.createElement("div");
+        outDiv.className = "record out";
+        outDiv.dataset.action = "clock-out";
+        outDiv.dataset.time = rec.dataset.time;
+        outDiv.innerHTML = rec.innerHTML;
         row.appendChild(outDiv);
-        frag.appendChild(row);
+
+        recordsDiv.appendChild(row);
         i += 1;
       }
     }
 
-    recordsDiv.appendChild(frag);
     dayRecords = [];
   }
 }
