@@ -36,7 +36,6 @@ app.get("/records", async (req, res) => {
   "SELECT * FROM records WHERE user_id = $1 ORDER BY record_time DESC",
   [MY_USER_ID]
 );
-	  //const result = await pool.query("SELECT * FROM records ORDER BY record_time DESC");
     res.json(result.rows);
   } catch (err) {
     console.error("Error fetching records:", err);
@@ -86,8 +85,8 @@ if (record_time) {
   record_time = parsed.toISOString();
 }
 
-if (!latitude) { latitude = default_latitude; }
-if (!longitude) { longitude = default_longitude; }
+if (latitude == null)  { latitude = default_latitude; }
+if (longitude == null) { longitude = default_longitude; }
 
   try {
     await pool.query(
@@ -101,11 +100,12 @@ if (!longitude) { longitude = default_longitude; }
   }
 });
 
+
+// 404 Handler
+app.use((req, res) => res.status(404).json({ error: "Not found" }))
+
 //
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
-// 404 Handler
-app.use((req, res) => res.status(404).json({ error: "Not found" }))
