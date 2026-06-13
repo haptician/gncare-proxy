@@ -547,15 +547,26 @@ const dayRecords = allRecords.filter(r => toDateKey(r.record_time) === dateStr);
     loadRecords();
 
   // for mobile
-  document.querySelectorAll("[data-tooltip]").forEach(el => {
-  // Show tooltip on tap
-  el.addEventListener("touchstart", () => {
-    el.classList.add("show-tooltip");
+  document.addEventListener("DOMContentLoaded", () => {
+  const tooltipEls = document.querySelectorAll("[data-tooltip]");
+
+  tooltipEls.forEach(el => {
+    el.addEventListener("touchstart", e => {
+      // Hide any other open tooltips first
+      tooltipEls.forEach(other => {
+        if (other !== el) other.classList.remove("show-tooltip");
+      });
+      // Show this one
+      el.classList.add("show-tooltip");
+      e.stopPropagation();
+    });
   });
 
-  // Hide tooltip when finger lifts or user taps elsewhere
-  el.addEventListener("touchend", () => {
-    setTimeout(() => el.classList.remove("show-tooltip"), 500);
+  // Hide tooltip when tapping outside
+  document.addEventListener("touchstart", e => {
+    if (![...tooltipEls].some(el => el.contains(e.target))) {
+      tooltipEls.forEach(el => el.classList.remove("show-tooltip"));
+    }
   });
 });
 
