@@ -116,24 +116,36 @@
   background: #fafafa;
 }
 
-/* Green bar + light green background for clock-in */
+    /* Clock-in cell: green bar + light green background */
 .record-row .record.in {
-  border-left: 6px solid #4CAF50; /* green bar */
-  background-color: #e8f5e9;      /* light green background */
+  border-left: 6px solid #4CAF50;
+  background-color: #e8f5e9;
+  transition: background-color 0.2s ease;
+}
+.record-row .record.in:hover {
+  background-color: #c8e6c9; /* deeper green shade */
 }
 
-/* Red bar + light red background for clock-out */
+/* Clock-out cell: red bar + light red background */
 .record-row .record.out {
-  border-left: 6px solid #F44336; /* red bar */
-  background-color: #ffebee;      /* light red background */
+  border-left: 6px solid #F44336;
+  background-color: #ffebee;
+  transition: background-color 0.2s ease;
+}
+.record-row .record.out:hover {
+  background-color: #ffcdd2; /* deeper red shade */
 }
 
-/* Gray bar + light gray background for empty/pending */
+/* Pending/empty cell: gray bar + light gray background */
 .record-row .record.out.empty {
   border-left: 6px solid #999;
-  background-color: #f5f5f5;      /* light gray background */
+  background-color: #f5f5f5;
   color: #888;
   font-style: italic;
+  transition: background-color 0.2s ease;
+}
+.record-row .record.out.empty:hover {
+  background-color: #e0e0e0; /* deeper gray shade */
 }
 
     a.map-link {
