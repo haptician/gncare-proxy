@@ -114,6 +114,7 @@
   border: 1px solid #ccc;
   position: relative;
   background: #fafafa;
+  transition: background-color 0.2s ease;
 }
 
     /* Clock-in cell: green bar + light green background */
@@ -122,8 +123,9 @@
   background-color: #e8f5e9;
   transition: background-color 0.2s ease;
 }
+/* Clock-in hover: deeper green */
 .record-row .record.in:hover {
-  background-color: #c8e6c9; /* deeper green shade */
+  background-color: #c8e6c9; /* slightly deeper green */
 }
 
 /* Clock-out cell: red bar + light red background */
@@ -132,8 +134,9 @@
   background-color: #ffebee;
   transition: background-color 0.2s ease;
 }
+/* Clock-out hover: deeper red */
 .record-row .record.out:hover {
-  background-color: #ffcdd2; /* deeper red shade */
+  background-color: #ffcdd2; /* slightly deeper red */
 }
 
 /* Pending/empty cell: gray bar + light gray background */
@@ -144,8 +147,9 @@
   font-style: italic;
   transition: background-color 0.2s ease;
 }
+    /* Pending hover: deeper gray */
 .record-row .record.out.empty:hover {
-  background-color: #e0e0e0; /* deeper gray shade */
+  background-color: #e0e0e0; /* slightly deeper gray */
 }
 
     a.map-link {
