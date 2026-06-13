@@ -116,19 +116,22 @@
   background: #fafafa;
 }
 
-/* Green bar for clock-in */
+/* Green bar + light green background for clock-in */
 .record-row .record.in {
-  border-left: 6px solid #4CAF50; /* green */
+  border-left: 6px solid #4CAF50; /* green bar */
+  background-color: #e8f5e9;      /* light green background */
 }
 
-/* Red bar for clock-out */
+/* Red bar + light red background for clock-out */
 .record-row .record.out {
-  border-left: 6px solid #F44336; /* red */
+  border-left: 6px solid #F44336; /* red bar */
+  background-color: #ffebee;      /* light red background */
 }
 
-/* Style for empty/pending cells */
-.record-row .record.empty {
+/* Gray bar + light gray background for empty/pending */
+.record-row .record.out.empty {
   border-left: 6px solid #999;
+  background-color: #f5f5f5;      /* light gray background */
   color: #888;
   font-style: italic;
 }
