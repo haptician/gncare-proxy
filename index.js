@@ -73,16 +73,15 @@ if (!VALID_ACTIONS.includes(action)) {
   return res.status(400).json({ error: "Invalid action" });
 }
 
-	if (!record_time) {
-		record_time = new Date().toISOString(); // safer format for SQL timestamp
-	}
-
-if (record_time) {
+if (!record_time) {
+  record_time = new Date().toISOString();
+} else {
   const parsed = new Date(record_time);
   if (isNaN(parsed.getTime())) {
     return res.status(400).json({ error: "Invalid record_time" });
   }
   record_time = parsed.toISOString();
+}
 }
 
 if (latitude == null)  { latitude = default_latitude; }
@@ -102,9 +101,14 @@ if (longitude == null) { longitude = default_longitude; }
 
 
 // 404 Handler
-app.use((req, res) => res.status(404).json({ error: "Not found" }))
+app.use((req, res) => res.status(404).json({ error: "Not found" }));
 
-//
+// Global 500 Error Handler (Add this!)
+app.use((err, req, res, next) => {
+  console.error("Unhandled Exception:", err.stack);
+  res.status(500).json({ error: "Something went completely wrong!" });
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
