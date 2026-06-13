@@ -274,39 +274,39 @@ function showToast(message) {
 
         for (let i = 0; i < dayRecords.length; i++) {
           const rec = dayRecords[i];
-          if (rec.dataset.action === "clock-in") {
-            // Build In cell
-            const inDiv = document.createElement("div");
-            inDiv.className = "record in";
-            inDiv.dataset.action = "clock-in";
-            inDiv.dataset.time = rec.dataset.time;
-            inDiv.innerHTML = rec.innerHTML;
+		if (rec.dataset.action === "clock-in") {
+  const inDiv = document.createElement("div");
+  inDiv.className = "record in";   // ✅ matches CSS
+  inDiv.dataset.action = "clock-in";
+  inDiv.dataset.time = rec.dataset.time;
+  inDiv.innerHTML = rec.innerHTML;
 
-            let outDiv = null;
-            if (i + 1 < dayRecords.length && dayRecords[i+1].dataset.action === "clock-out") {
-              const nextRec = dayRecords[i+1];
-              outDiv = document.createElement("div");
-              outDiv.className = "record out";
-              outDiv.dataset.action = "clock-out";
-              outDiv.dataset.time = nextRec.dataset.time;
-              outDiv.innerHTML = nextRec.innerHTML;
-              i++; // skip the out record since we paired it
-            }
+  let outDiv = null;
+  if (i + 1 < dayRecords.length && dayRecords[i+1].dataset.action === "clock-out") {
+    const nextRec = dayRecords[i+1];
+    outDiv = document.createElement("div");
+    outDiv.className = "record out";   // ✅ matches CSS
+    outDiv.dataset.action = "clock-out";
+    outDiv.dataset.time = nextRec.dataset.time;
+    outDiv.innerHTML = nextRec.innerHTML;
+    i++;
+  }
 
-            const row = document.createElement("div");
-            row.className = "record-row";
-            row.appendChild(inDiv);
+  const row = document.createElement("div");
+  row.className = "record-row";
+  row.appendChild(inDiv);
 
-            if (outDiv) {
-              row.appendChild(outDiv);
-            } else {
-              const emptyOut = document.createElement("div");
-              emptyOut.className = "record out empty";
-              emptyOut.textContent = "Out - (pending)";
-              row.appendChild(emptyOut);
-            }
+  if (outDiv) {
+    row.appendChild(outDiv);
+  } else {
+    const emptyOut = document.createElement("div");
+    emptyOut.className = "record out empty";   // ✅ matches CSS
+    emptyOut.textContent = "Out - (pending)";
+    row.appendChild(emptyOut);
+  }
 
-            recordsDiv.appendChild(row);
+  recordsDiv.appendChild(row);
+}
           }
         }
         dayRecords = [];
