@@ -101,6 +101,18 @@
     }
     .record.clock-in { border-left: 5px solid #34c759; }
     .record.clock-out { border-left: 5px solid #ff3b30; }
+.record-row {
+  display: flex;
+  gap: 1rem;
+}
+.record-row .record {
+  flex: 1;
+  padding: 4px;
+  border: 1px solid #ccc;
+}
+.record-row .record.in { background: #e0ffe0; }
+.record-row .record.out { background: #ffe0e0; }
+.record-row .record.empty { color: #888; font-style: italic; }
     a.map-link {
       display: inline-block;
       margin-top: 0.5rem;
@@ -233,24 +245,40 @@ function showToast(message) {
         let currentDate = null;
         let dayRecords = [];
 
-        function flushDay() {
-          if (dayRecords.length > 0) {
-            dayRecords.sort((a, b) => new Date(a.dataset.time) - new Date(b.dataset.time));
-            for (let i = 0; i < dayRecords.length; i++) {
-              const rec = dayRecords[i];
-              if (rec.dataset.action === "clock-in") {
-                recordsDiv.appendChild(rec);
-                if (i + 1 < dayRecords.length && dayRecords[i+1].dataset.action === "clock-out") {
-                  recordsDiv.appendChild(dayRecords[i+1]);
-                  i++;
-                }
-              } else {
-                recordsDiv.appendChild(rec);
-              }
-            }
-            dayRecords = [];
-          }
+	      function flushDay() {
+  if (dayRecords.length > 0) {
+    dayRecords.sort((a, b) => new Date(a.dataset.time) - new Date(b.dataset.time));
+
+    for (let i = 0; i < dayRecords.length; i++) {
+      const rec = dayRecords[i];
+      if (rec.dataset.action === "clock-in") {
+        const inDiv = rec;
+        let outDiv = null;
+
+        if (i + 1 < dayRecords.length && dayRecords[i+1].dataset.action === "clock-out") {
+          outDiv = dayRecords[i+1];
+          i++; // skip the out record since we paired it
         }
+
+        const row = document.createElement("div");
+        row.className = "record-row";
+        row.appendChild(inDiv);
+
+        if (outDiv) {
+          row.appendChild(outDiv);
+        } else {
+          const emptyOut = document.createElement("div");
+          emptyOut.className = "record out empty";
+          emptyOut.textContent = "Out - (pending)";
+          row.appendChild(emptyOut);
+        }
+
+        recordsDiv.appendChild(row);
+      }
+    }
+    dayRecords = [];
+  }
+}
 
 	              filtered.forEach((r, idx) => {
           const recordDate = new Date(r.record_time).toLocaleDateString();
