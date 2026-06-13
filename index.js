@@ -33,8 +33,7 @@ const pool = new Pool({
 app.get("/records", async (req, res) => {
   try {
 	  const result = await pool.query(
-  "SELECT * FROM records WHERE user_id = $1 ORDER BY record_time DESC",
-  [MY_USER_ID]
+  "SELECT * FROM records ORDER BY record_time DESC"
 );
     res.json(result.rows);
   } catch (err) {
@@ -46,8 +45,7 @@ app.get("/records", async (req, res) => {
 app.get("/currentStatus", async (req, res) => {
   try {
     const result = await pool.query(
-  "SELECT action FROM records WHERE user_id = $1 ORDER BY record_time DESC LIMIT 1",
-  [MY_USER_ID]
+  "SELECT action FROM records ORDER BY record_time DESC LIMIT 1"
 );
 
     if (result.rows.length === 0) {
