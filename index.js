@@ -82,7 +82,6 @@ if (!record_time) {
   }
   record_time = parsed.toISOString();
 }
-}
 
 if (latitude == null)  { latitude = default_latitude; }
 if (longitude == null) { longitude = default_longitude; }
