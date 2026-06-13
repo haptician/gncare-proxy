@@ -475,13 +475,21 @@ function getFilteredRecords() {
         row.appendChild(document.createElement("td"));
       }
 
+										   // Build once before the day loop
+const recordsByDate = new Map();
+allRecords.forEach(r => {
+  const key = toDateKey(r.record_time);
+  if (!recordsByDate.has(key)) recordsByDate.set(key, []);
+  recordsByDate.get(key).push(r);
+});
+
       for (let day = 1; day <= daysInMonth; day++) {
         const cell = document.createElement("td");
         cell.textContent = day;
         cell.style.cursor = "pointer";
 
 	      const dateStr = toDateKey(new Date(year, month, day));
-const dayRecords = allRecords.filter(r => toDateKey(r.record_time) === dateStr);
+	      const dayRecords = recordsByDate.get(dateStr) || [];
 
 	      if (dayRecords.length > 0) {
   cell.style.backgroundColor = "#e3f2fd";
