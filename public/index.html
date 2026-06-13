@@ -101,18 +101,38 @@
     }
     .record.clock-in { border-left: 5px solid #34c759; }
     .record.clock-out { border-left: 5px solid #ff3b30; }
+
 .record-row {
   display: flex;
   gap: 1rem;
+  margin-bottom: 6px;
 }
+
 .record-row .record {
   flex: 1;
-  padding: 4px;
+  padding: 6px 10px;
   border: 1px solid #ccc;
+  position: relative;
+  background: #fafafa;
 }
-.record-row .record.in { background: #e0ffe0; }
-.record-row .record.out { background: #ffe0e0; }
-.record-row .record.empty { color: #888; font-style: italic; }
+
+/* Green bar for clock-in */
+.record-row .record.in {
+  border-left: 6px solid #4CAF50; /* green */
+}
+
+/* Red bar for clock-out */
+.record-row .record.out {
+  border-left: 6px solid #F44336; /* red */
+}
+
+/* Style for empty/pending cells */
+.record-row .record.empty {
+  border-left: 6px solid #999;
+  color: #888;
+  font-style: italic;
+}
+
     a.map-link {
       display: inline-block;
       margin-top: 0.5rem;
