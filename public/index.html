@@ -304,109 +304,89 @@ setFilter("week");
       filtered = allRecords.filter(r => new Date(r.record_time) >= startOfMonth);
     }
 
-    filtered.sort((a, b) => new Date(b.record_time) - new Date(a.record_time));
+    // Sort ascending once
+    filtered.sort((a, b) => new Date(a.record_time) - new Date(b.record_time));
 
     const recordsDiv = document.getElementById("records");
     recordsDiv.innerHTML = "";
 
     if (filtered.length === 0) {
       recordsDiv.textContent = "No records found.";
+      return;
     }
 
     let currentDate = null;
     let dayRecords = [];
+    const frag = document.createDocumentFragment();
 
-	  function flushDay() {
-  if (dayRecords.length > 0) {
-    dayRecords.sort((a, b) => new Date(a.dataset.time) - new Date(b.dataset.time));
-
-    let i = 0;
-    while (i < dayRecords.length) {
-      const rec = dayRecords[i];
-
-      if (rec.dataset.action === "clock-in") {
-        // Build In cell
-        const inDiv = document.createElement("div");
-        inDiv.className = "record in";
-        inDiv.dataset.action = "clock-in";
-        inDiv.dataset.time = rec.dataset.time;
-        inDiv.innerHTML = rec.innerHTML;
-
-        let outDiv = null;
-        if (i + 1 < dayRecords.length && dayRecords[i+1].dataset.action === "clock-out") {
-          const nextRec = dayRecords[i+1];
-          outDiv = document.createElement("div");
-          outDiv.className = "record out";
-          outDiv.dataset.action = "clock-out";
-          outDiv.dataset.time = nextRec.dataset.time;
-          outDiv.innerHTML = nextRec.innerHTML;
-          i += 2; // skip both in/out
-        } else {
-          // No matching out → show pending
-          outDiv = document.createElement("div");
-          outDiv.className = "record out empty";
-          outDiv.textContent = "Out - (pending)";
-          i += 1; // skip only the in
+    function flushDay() {
+      if (dayRecords.length > 0) {
+        let i = 0;
+        while (i < dayRecords.length) {
+          const rec = dayRecords[i];
+          if (rec.dataset.action === "clock-in") {
+            const inDiv = rec;
+            let outDiv;
+            if (i + 1 < dayRecords.length && dayRecords[i+1].dataset.action === "clock-out") {
+              outDiv = dayRecords[i+1];
+              i += 2;
+            } else {
+              outDiv = document.createElement("div");
+              outDiv.className = "record out empty";
+              outDiv.textContent = "Out - (pending)";
+              i += 1;
+            }
+            const row = document.createElement("div");
+            row.className = "record-row";
+            row.appendChild(inDiv);
+            row.appendChild(outDiv);
+            frag.appendChild(row);
+          } else {
+            const emptyIn = document.createElement("div");
+            emptyIn.className = "record in empty";
+            emptyIn.textContent = "In - (missing)";
+            const row = document.createElement("div");
+            row.className = "record-row";
+            row.appendChild(emptyIn);
+            row.appendChild(rec);
+            frag.appendChild(row);
+            i += 1;
+          }
         }
-
-        const row = document.createElement("div");
-        row.className = "record-row";
-        row.appendChild(inDiv);
-        row.appendChild(outDiv);
-        recordsDiv.appendChild(row);
-
-      } else if (rec.dataset.action === "clock-out") {
-        // Handle stray clock-out with no in
-        const row = document.createElement("div");
-        row.className = "record-row";
-
-        const emptyIn = document.createElement("div");
-        emptyIn.className = "record in empty";
-        emptyIn.textContent = "In - (missing)";
-        row.appendChild(emptyIn);
-
-        const outDiv = document.createElement("div");
-        outDiv.className = "record out";
-        outDiv.dataset.action = "clock-out";
-        outDiv.dataset.time = rec.dataset.time;
-        outDiv.innerHTML = rec.innerHTML;
-        row.appendChild(outDiv);
-
-        recordsDiv.appendChild(row);
-        i += 1;
+        dayRecords = [];
       }
     }
 
-    dayRecords = [];
-  }
-}
+    filtered.forEach((r, idx) => {
+      const dateObj = new Date(r.record_time);
+      const recordDate = dateObj.toLocaleDateString();
+      const timeStr = dateObj.toLocaleTimeString();
 
-	    filtered.forEach((r, idx) => {
-      const recordDate = new Date(r.record_time).toLocaleDateString();
       if (recordDate !== currentDate) {
         flushDay();
         currentDate = recordDate;
         const dateHeader = document.createElement("div");
         dateHeader.className = "date-header";
-        const dateObj = new Date(r.record_time);
         const dayName = dateObj.toLocaleDateString(undefined, { weekday: 'short' });
         dateHeader.textContent = `${recordDate} ${dayName}`;
-        recordsDiv.appendChild(dateHeader);
+        frag.appendChild(dateHeader);
       }
 
       const div = document.createElement("div");
       div.dataset.action = r.action;
       div.dataset.time = r.record_time;
-      const time = new Date(r.record_time).toLocaleTimeString();
       const mapsUrl = `https://www.google.com/maps?q=${r.latitude},${r.longitude}`;
       const label = r.action === "clock-in" ? "In" : "Out";
-      div.innerHTML = `${label} - ${time}<br><a class="map-link" href="${mapsUrl}" target="_blank">View on map</a>`;
+      div.innerHTML = `${label} - ${timeStr}<br><a class="map-link" href="${mapsUrl}" target="_blank">View on map</a>`;
+      div.className = `record ${r.action === "clock-in" ? "in" : "out"}`;
       dayRecords.push(div);
 
       if (idx === filtered.length - 1) {
         flushDay();
       }
     });
+
+    recordsDiv.appendChild(frag);
 
   } catch (err) {
     console.error("Error in renderRecords:", err);
