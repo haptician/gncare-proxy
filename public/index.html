@@ -248,6 +248,7 @@ function showToast(message) {
 }
 
     let allRecords = [];
+    let recordsLoaded = false; // <-- add this
     let currentFilter = "week"; // default to weekly view
     let calendarYear = new Date().getFullYear();
     let calendarMonth = new Date().getMonth(); // 0 = Jan
@@ -257,6 +258,7 @@ function showToast(message) {
         const response = await fetch("/records");
         if (!response.ok) throw new Error("Failed to fetch records");
         allRecords = await response.json();
+	recordsLoaded = true;               // <-- set this before calling render
         renderRecords();
         renderCalendar();
       } catch (err) {
@@ -311,8 +313,8 @@ setFilter("week");
     recordsDiv.innerHTML = "";
 
     if (filtered.length === 0) {
-      recordsDiv.textContent = "No records found.";
-      return;
+       recordsDiv.textContent = recordsLoaded ? "No records found." : "Loading...";
+       return;
     }
 
     let currentDate = null;
