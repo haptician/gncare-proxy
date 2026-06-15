@@ -124,20 +124,12 @@
   background-color: #e8f5e9;
   //transition: background-color 0.2s ease;
 }
-/* Clock-in hover: deeper green */
-.record-row .record.in:hover {
- // background-color: #c8e6c9; /* slightly deeper green */
-}
 
 /* Clock-out cell: red bar + light red background */
 .record-row .record.out {
   //border-left: 6px solid #F44336;
   background-color: #ffebee;
   //transition: background-color 0.2s ease;
-}
-/* Clock-out hover: deeper red */
-.record-row .record.out:hover {
-//  background-color: #ffcdd2; /* slightly deeper red */
 }
 
 /* Pending/empty cell: gray bar + light gray background */
@@ -148,30 +140,9 @@
   font-style: italic;
   //transition: background-color 0.2s ease;
 }
-    /* Pending hover: deeper gray */
-.record-row .record.out.empty:hover {
-  //background-color: #e0e0e0; /* slightly deeper gray */
-}
 
-    /* Clock-in click effect */
-.record-row .record.in:active {
-  //background-color: #a5d6a7; /* deeper green while pressed */
-  //transform: scale(0.98);   /* tiny shrink for tactile feel */
-}
-
-/* Clock-out click effect */
-.record-row .record.out:active {
-  //background-color: #ef9a9a; /* deeper red while pressed */
-  //transform: scale(0.98);
-}
-
-/* Pending click effect */
-.record-row .record.out.empty:active {
-  //background-color: #d6d6d6; /* deeper gray while pressed */
-  //transform: scale(0.98);
-}
-
-    .filter-button {
+  // filter buttons
+.filter-button {
   padding: 6px 12px;
   margin: 0 4px;
   border: 1px solid #ccc;
@@ -313,7 +284,7 @@ function showToast(message) {
     }
 
   // Default mode
-  setFilter("weekK");
+  setFilter("week");
 
   function renderRecords() {
   try {
