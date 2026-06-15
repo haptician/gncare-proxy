@@ -171,6 +171,23 @@
   //transform: scale(0.98);
 }
 
+    .filter-button {
+  padding: 6px 12px;
+  margin: 0 4px;
+  border: 1px solid #ccc;
+  background-color: #f5f5f5;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.filter-button.active {
+  background-color: #4CAF50; /* highlight color */
+  color: #fff;
+  border-color: #4CAF50;
+  font-weight: bold;
+}
+
     a.map-link {
       display: inline-block;
       margin-top: 0.5rem;
@@ -228,9 +245,9 @@
 <body>
   <h1>Timesheet</h1>
   <div id="controls">
-    <button onclick="setFilter(null)">Show All</button>
-    <button onclick="setFilter('week')">This Week</button>
-    <button onclick="setFilter('month')">This Month</button>
+    <button id="btn-all" class="filter-button" onclick="setFilter(null)">Show All</button>
+    <button id="btn-week" class="filter-button" onclick="setFilter('week')">This Week</button>
+    <button id="btn-month" class="filter-button" onclick="setFilter('month')">This Month</button>
     <button onclick="exportCSV()">Save to CSV</button>
   </div>
   <div id="records">Loading records...</div>
@@ -279,7 +296,24 @@ function showToast(message) {
     function setFilter(filter) {
       currentFilter = filter;
       renderRecords();
+
+	      // Remove active class from all buttons
+  document.querySelectorAll(".filter-button").forEach(btn => {
+    btn.classList.remove("active");
+  });
+
+  // Add active class to the selected button
+  if (mode === "week") {
+    document.getElementById("btn-week").classList.add("active");
+  } else if (mode === "month") {
+    document.getElementById("btn-month").classList.add("active");
+  } else {
+    document.getElementById("btn-all").classList.add("active");
+  }
     }
+
+  // Default mode
+  setFilter("weekK");
 
   function renderRecords() {
   try {
