@@ -141,22 +141,18 @@
   //transition: background-color 0.2s ease;
 }
 
+/* Let Safari keep its default look */
 .filter-button {
-  -webkit-appearance: none; /* Safari */
-  appearance: none;         /* other browsers */
-//  border: 1px solid #ccc;
-//  background-color: #f5f5f5; /* neutral base */
-  padding: 6px 12px;
-  margin: 0 4px;
-  border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
 }
 
+/* Override only when active */
 .filter-button.active {
+  -webkit-appearance: none; /* neutralize Safari’s native style */
+  appearance: none;
   background-color: #4CAF50; /* green highlight */
   color: #fff;
-  border-color: #4CAF50;
+  border: 1px solid #4CAF50;
   font-weight: bold;
 }
 
