@@ -309,6 +309,10 @@ setFilter("week");
     const recordsDiv = document.getElementById("records");
     recordsDiv.innerHTML = "";
 
+    if (filtered.length === 0) {
+      recordsDiv.textContent = "No records found.";
+    }
+
     let currentDate = null;
     let dayRecords = [];
 
@@ -403,10 +407,6 @@ setFilter("week");
         flushDay();
       }
     });
-
-    if (filtered.length === 0) {
-      recordsDiv.textContent = "No records found.";
-    }
 
   } catch (err) {
     console.error("Error in renderRecords:", err);
