@@ -141,15 +141,27 @@
   //transition: background-color 0.2s ease;
 }
 
+.filter-button {
+  -webkit-appearance: none; /* Safari */
+  appearance: none;         /* other browsers */
+  border: 1px solid #ccc;
+  background-color: #f5f5f5; /* neutral base */
+  padding: 6px 12px;
+  margin: 0 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
 .filter-button.active {
   background-color: #4CAF50; /* green highlight */
   color: #fff;
-  border: 1px solid #4CAF50;
+  border-color: #4CAF50;
   font-weight: bold;
 }
 
 .filter-button:hover {
-  filter: brightness(90%); /* darkens the default blue */
+  filter: brightness(85%); /* darkens the default blue */
 }
 
     a.map-link {
