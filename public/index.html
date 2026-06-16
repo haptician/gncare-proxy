@@ -289,7 +289,7 @@ function showToast(message) {
 // Default mode on load
 setFilter("week");
 
-  function renderRecords() {
+function renderRecords() {
   try {
     const now = new Date();
     let filtered = allRecords;
@@ -306,24 +306,23 @@ setFilter("week");
       filtered = allRecords.filter(r => new Date(r.record_time) >= startOfMonth);
     }
 
-    // Sort descending: newest first
-    filtered.sort((a, b) => new Date(b.record_time) - new Date(a.record_time));
-
+    // Sort ascending (oldest first) so pairing works
+    filtered.sort((a, b) => new Date(a.record_time) - new Date(b.record_time));
 
     const recordsDiv = document.getElementById("records");
     recordsDiv.innerHTML = "";
 
     if (filtered.length === 0) {
-       recordsDiv.textContent = recordsLoaded ? "No records found." : "Loading...";
-       return;
+      recordsDiv.textContent = "No records found.";
+      return;
     }
 
     let currentDate = null;
     let dayRecords = [];
-    const frag = document.createDocumentFragment();
 
     function flushDay() {
       if (dayRecords.length > 0) {
+        const dayFrag = document.createDocumentFragment();
         let i = 0;
         while (i < dayRecords.length) {
           const rec = dayRecords[i];
@@ -343,7 +342,7 @@ setFilter("week");
             row.className = "record-row";
             row.appendChild(inDiv);
             row.appendChild(outDiv);
-            frag.appendChild(row);
+            dayFrag.appendChild(row);
           } else {
             const emptyIn = document.createElement("div");
             emptyIn.className = "record in empty";
@@ -352,10 +351,12 @@ setFilter("week");
             row.className = "record-row";
             row.appendChild(emptyIn);
             row.appendChild(rec);
-            frag.appendChild(row);
+            dayFrag.appendChild(row);
             i += 1;
           }
         }
+        // Prepend this day’s fragment so newest day appears first
+        recordsDiv.insertBefore(dayFrag, recordsDiv.firstChild);
         dayRecords = [];
       }
     }
@@ -372,7 +373,8 @@ setFilter("week");
         dateHeader.className = "date-header";
         const dayName = dateObj.toLocaleDateString(undefined, { weekday: 'short' });
         dateHeader.textContent = `${recordDate} ${dayName}`;
-        frag.appendChild(dateHeader);
+        // Prepend header too
+        recordsDiv.insertBefore(dateHeader, recordsDiv.firstChild);
       }
 
       const div = document.createElement("div");
@@ -388,8 +390,6 @@ setFilter("week");
         flushDay();
       }
     });
-
-    recordsDiv.appendChild(frag);
 
   } catch (err) {
     console.error("Error in renderRecords:", err);
