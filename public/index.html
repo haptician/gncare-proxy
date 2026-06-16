@@ -306,8 +306,9 @@ setFilter("week");
       filtered = allRecords.filter(r => new Date(r.record_time) >= startOfMonth);
     }
 
-    // Sort ascending once
-    filtered.sort((a, b) => new Date(a.record_time) - new Date(b.record_time));
+    // Sort descending: newest first
+    filtered.sort((a, b) => new Date(b.record_time) - new Date(a.record_time));
+
 
     const recordsDiv = document.getElementById("records");
     recordsDiv.innerHTML = "";
