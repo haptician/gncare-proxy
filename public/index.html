@@ -291,6 +291,10 @@ setFilter("week");
 
   function renderRecords() {
   try {
+    const recordsDiv = document.getElementById("records");
+    // Show loading state immediately
+    recordsDiv.textContent = "Loading data...";
+
     const now = new Date();
     let filtered = allRecords;
 
