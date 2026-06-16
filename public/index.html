@@ -321,6 +321,9 @@ setFilter("week");
       return;
     }
 
+    // Clear loading message before rendering
+    recordsDiv.innerHTML = "";
+
     let currentDate = null;
     let dayRecords = [];
 
