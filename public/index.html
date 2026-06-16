@@ -292,8 +292,12 @@ setFilter("week");
   function renderRecords() {
   try {
     const recordsDiv = document.getElementById("records");
-    // Show loading state immediately
-    recordsDiv.textContent = "Loading data...";
+    // Data hasn't arrived from the server yet — keep showing the loading
+    // state and stop here, before reaching the "no records" check below.
+    if (!recordsLoaded) {
+      recordsDiv.textContent = "Loading data...";
+      return;
+    }
 
     const now = new Date();
     let filtered = allRecords;
