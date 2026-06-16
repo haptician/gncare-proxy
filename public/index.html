@@ -289,7 +289,7 @@ function showToast(message) {
 // Default mode on load
 setFilter("week");
 
-function renderRecords() {
+  function renderRecords() {
   try {
     const now = new Date();
     let filtered = allRecords;
@@ -306,7 +306,7 @@ function renderRecords() {
       filtered = allRecords.filter(r => new Date(r.record_time) >= startOfMonth);
     }
 
-    // Sort ascending (oldest first) so pairing works
+    // Ascending sort for pairing
     filtered.sort((a, b) => new Date(a.record_time) - new Date(b.record_time));
 
     const recordsDiv = document.getElementById("records");
@@ -320,9 +320,18 @@ function renderRecords() {
     let currentDate = null;
     let dayRecords = [];
 
-    function flushDay() {
+    function flushDay(dateObj, recordDate) {
       if (dayRecords.length > 0) {
         const dayFrag = document.createDocumentFragment();
+
+        // Header first
+        const dateHeader = document.createElement("div");
+        dateHeader.className = "date-header";
+        const dayName = dateObj.toLocaleDateString(undefined, { weekday: 'short' });
+        dateHeader.textContent = `${recordDate} ${dayName}`;
+        dayFrag.appendChild(dateHeader);
+
+        // Rows
         let i = 0;
         while (i < dayRecords.length) {
           const rec = dayRecords[i];
@@ -355,7 +364,8 @@ function renderRecords() {
             i += 1;
           }
         }
-        // Prepend this day’s fragment so newest day appears first
+
+        // Prepend the whole day (header + rows)
         recordsDiv.insertBefore(dayFrag, recordsDiv.firstChild);
         dayRecords = [];
       }
@@ -367,14 +377,11 @@ function renderRecords() {
       const timeStr = dateObj.toLocaleTimeString();
 
       if (recordDate !== currentDate) {
-        flushDay();
+        // Flush previous day before starting new one
+        if (currentDate !== null) {
+          flushDay(new Date(dayRecords[0].dataset.time), currentDate);
+        }
         currentDate = recordDate;
-        const dateHeader = document.createElement("div");
-        dateHeader.className = "date-header";
-        const dayName = dateObj.toLocaleDateString(undefined, { weekday: 'short' });
-        dateHeader.textContent = `${recordDate} ${dayName}`;
-        // Prepend header too
-        recordsDiv.insertBefore(dateHeader, recordsDiv.firstChild);
       }
 
       const div = document.createElement("div");
@@ -387,7 +394,7 @@ function renderRecords() {
       dayRecords.push(div);
 
       if (idx === filtered.length - 1) {
-        flushDay();
+        flushDay(dateObj, recordDate);
       }
     });
 
